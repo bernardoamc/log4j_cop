@@ -2,6 +2,12 @@
 
 Detect log4j payloads from a log file.
 
+**Usage:**
+
+```bash
+./log4j_cop <LOG_FILE>
+```
+
 ## Rules
 
 Currently the following rules (and variants) are being accounted for:

