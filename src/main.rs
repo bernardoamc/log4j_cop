@@ -1,27 +1,52 @@
-use std::collections::VecDeque;
-
 #[macro_use]
 extern crate lazy_static;
 
 lazy_static! {
-    static ref FILE_CONTENTS: String = std::fs::read_to_string("data/log.txt").unwrap();
+    static ref LOG: String = std::fs::read_to_string("data/log.txt").unwrap();
+    static ref RULES: String = std::fs::read_to_string("data/rules.txt").unwrap();
 }
 
-fn is_log4j_payload(line: &str) -> bool {
-    let mut ldap_matcher: VecDeque<char> = "${jndi:ldap://".chars().collect();
-    let mut rmi_matcher: VecDeque<char> = "${jndi:rmi://".chars().collect();
+struct Matcher<'m> {
+    rule: &'m Vec<char>,
+    rule_len: usize,
+    state: usize,
+}
+
+impl<'m> Matcher<'m> {
+    fn new(rule: &'m Vec<char>) -> Self {
+        Self {
+            rule: rule,
+            rule_len: rule.len(),
+            state: 0,
+        }
+    }
+
+    fn advance(&mut self, character: char) {
+        if self.current_character() == character {
+            self.state += 1;
+        }
+    }
+
+    fn current_character(&self) -> char {
+        self.rule[self.state]
+    }
+
+    fn is_match(&self) -> bool {
+        self.rule_len == self.state
+    }
+}
+
+fn is_log4j_payload(line: &str, rules: &Vec<Vec<char>>) -> bool {
+    let mut matchers: Vec<Matcher> = rules.iter().map(|rule| Matcher::new(rule)).collect();
 
     for c in line.chars() {
-        if ldap_matcher.is_empty() || rmi_matcher.is_empty() {
+        let is_match = matchers.iter_mut().any(|matcher| {
+            matcher.advance(c);
+            matcher.is_match()
+        });
+
+        if is_match {
             return true;
-        }
-
-        if c == ldap_matcher[0] {
-            ldap_matcher.pop_front();
-        }
-
-        if c == rmi_matcher[0] {
-            rmi_matcher.pop_front();
         }
     }
 
@@ -29,10 +54,16 @@ fn is_log4j_payload(line: &str) -> bool {
 }
 
 fn main() {
-    let payloads: Vec<&str> = FILE_CONTENTS
+    let rules: Vec<Vec<char>> = RULES
         .trim()
         .lines()
-        .filter(|line| is_log4j_payload(line.trim()))
+        .map(|matcher| matcher.trim().chars().collect())
+        .collect();
+
+    let payloads: Vec<&str> = LOG
+        .trim()
+        .lines()
+        .filter(|line| is_log4j_payload(line.trim(), &rules))
         .collect();
 
     payloads.iter().for_each(|payload| println!("{}", payload));
