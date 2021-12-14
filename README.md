@@ -21,6 +21,11 @@ Currently the following rules (and variants) are being accounted for:
 * ${jndi:corba:/
 * ${jndi:iiop:/
 
+We are also taking into account:
+
+* Mixed case payloads
+* URL encoded payloads
+
 ## Algorithm
 
 Each line is broken into characters and we check whether these characters match
