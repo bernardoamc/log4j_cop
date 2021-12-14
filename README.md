@@ -2,10 +2,18 @@
 
 Detect log4j payloads from a log file.
 
-**Usage:**
+**Usage through cargo:**
 
 ```bash
-./log4j_cop <LOG_FILE>
+cargo run -- <LOG_FILE>
+```
+
+**Or build the binary for release:**
+
+1. `cargo build --release`
+
+```bash
+./target/release/log4j_cop <LOG_FILE>
 ```
 
 ## Rules
