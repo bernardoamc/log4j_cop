@@ -14,6 +14,12 @@ Currently the following rules (and variants) are being accounted for:
 
 * ${jndi:ldap://
 * ${jndi:rmi://
+* ${jndi:ldaps:/
+* ${jndi:dns:/
+* ${jndi:nis:/
+* ${jndi:nds:/
+* ${jndi:corba:/
+* ${jndi:iiop:/
 
 ## Algorithm
 

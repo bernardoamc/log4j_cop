@@ -1,2 +1,8 @@
-${jndi:ldap://
-${jndi:rmi://
+${jndi:ldap:/
+${jndi:rmi:/
+${jndi:ldaps:/
+${jndi:dns:/
+${jndi:nis:/
+${jndi:nds:/
+${jndi:corba:/
+${jndi:iiop:/
