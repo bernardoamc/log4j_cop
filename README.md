@@ -1,45 +1,69 @@
 # log4j_cop
 
-Detect log4j payloads from a log file.
+Detects log4j payloads from a log file and optionally extracts URLs into a CSV file.
 
-**Usage through cargo:**
+The CSV file will have two columns: `<URL>,<number of times URL showed up>`
 
-```bash
-cargo run -- <LOG_FILE>
+## Usage
+
+1. Build the binary
+
+```
+$ cargo build --release
 ```
 
-**Or build the binary for release:**
+2. Run
 
-1. `cargo build --release`
+```
+$ ./log4j_cop --help
+log4j_cop 0.2
+Bernardo de Araujo
+Search logs for log4j payloads and optionally extract URLs.
 
-```bash
-./target/release/log4j_cop <LOG_FILE>
+USAGE:
+    log4j_cop [OPTIONS] <LOG_FILE>
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -u, --urls_output_path <urls_output_path>    When specified URLs will be extracted and persisted in CSV format
+
+ARGS:
+    <LOG_FILE>    Specifies the log file to be used
 ```
 
 ## Rules
 
 Currently the following rules (and variants) are being accounted for:
 
-* ${jndi:ldap://
-* ${jndi:rmi://
-* ${jndi:ldaps:/
-* ${jndi:dns:/
-* ${jndi:nis:/
-* ${jndi:nds:/
-* ${jndi:corba:/
-* ${jndi:iiop:/
+- ${jndi:ldap://
+- ${jndi:rmi://
+- ${jndi:ldaps:/
+- ${jndi:dns:/
+- ${jndi:nis:/
+- ${jndi:nds:/
+- ${jndi:corba:/
+- ${jndi:iiop:/
 
 We are also taking into account:
 
-* Mixed case payloads
-* URL encoded payloads
+- Mixed case payloads
+- URL encoded payloads
 
 ## Algorithm
 
-Each line is broken into characters and we check whether these characters match
-one of our rulesets in the correct order, ignoring characters that do not match.
+Each line is broken into characters and we run each character against characters from our rules.
 
-## Examples being matched
+1. For each rule, if a character matches the current character in that rule state machine we:
+   - increment the state machine of that rule
+   - otherwise the state remains the same
+2. If the state machine of any rules reaches the end (every character in our rule is consumed):
+   - return a match
+   - otherwise return no match
+
+## Examples of payloads being matched
 
 ```
 ${jndi:ldap://whatever.com/z}

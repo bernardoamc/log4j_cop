@@ -8,3 +8,5 @@ edition = "2021"
 [dependencies]
 lazy_static = "1.4.0"
 urlencoding = "2.1.0"
+clap = "2.34.0"
+csv = "1.1"
