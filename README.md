@@ -18,7 +18,7 @@ $ cargo build --release
 $ ./log4j_cop --help
 log4j_cop 0.2
 Bernardo de Araujo
-Search logs for log4j payloads and optionally extract URLs.
+Search logs for log4j payloads and optionally extract domains.
 
 USAGE:
     log4j_cop [OPTIONS] <LOG_FILE>
@@ -28,7 +28,9 @@ FLAGS:
     -V, --version    Prints version information
 
 OPTIONS:
-    -u, --urls_output_path <urls_output_path>    When specified URLs will be extracted and persisted in CSV format
+    -d, --domains_output_path <domains_output_path>
+            When specified domains will be extracted and persisted in this file. Unrecognized domains will be saved in a
+            file called failed.log.
 
 ARGS:
     <LOG_FILE>    Specifies the log file to be used
